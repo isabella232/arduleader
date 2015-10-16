@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
-import sbtassembly.Plugin._
-import AssemblyKeys._ // put this at the top of the file
+//import sbtassembly.Plugin._
+//import AssemblyKeys._ // put this at the top of the file
 import sbtandroid.AndroidKeys._
 import sbtandroid._
 import scalabuff.ScalaBuffPlugin._
@@ -11,18 +11,18 @@ object ScalaFlyBuild extends Build {
   // val main = "com.geeksville.shell.ScalaConsole"
   val main = "com.geeksville.flight.lead.Main"
 
-  val assemblyCustomize = mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
-    {
-      // Pull all of the jansi classes from the offical dist jar, not jline
-      case PathList("org", "fusesource", xs @ _*) => MergeStrategy.first
-      case PathList("META-INF", "native", xs @ _*) => MergeStrategy.first
-      case "application.conf" => MergeStrategy.concat
-      case ".project" => MergeStrategy.discard
-      case ".classpath" => MergeStrategy.discard
-      case "build.xml" => MergeStrategy.discard
-      case x => old(x)
-    }
-  }
+  //val assemblyCustomize = mergeStrategy in assembly <<= (mergeStrategy in assembly) { (old) =>
+    //{
+      //// Pull all of the jansi classes from the offical dist jar, not jline
+      //case PathList("org", "fusesource", xs @ _*) => MergeStrategy.first
+      //case PathList("META-INF", "native", xs @ _*) => MergeStrategy.first
+      //case "application.conf" => MergeStrategy.concat
+      //case ".project" => MergeStrategy.discard
+      //case ".classpath" => MergeStrategy.discard
+      //case "build.xml" => MergeStrategy.discard
+      //case x => old(x)
+    //}
+  //}
 
   lazy val root = Project(id = "root",
     base = file(".")) aggregate(posixpilot, andropilot)
@@ -36,11 +36,12 @@ object ScalaFlyBuild extends Build {
 
   lazy val posixpilot = Project(id = "posixpilot",
     base = file("posixpilot"),
-    settings = Project.defaultSettings ++ assemblySettings ++ Seq(
-      assemblyCustomize,
+    //settings = Project.defaultSettings ++ assemblySettings ++ Seq(
+    settings = Project.defaultSettings ++ Seq(
+      //assemblyCustomize,
       mainClass in (Compile, run) := Some(main),
-      mainClass in assembly := Some(main),
-      
+      //mainClass in assembly := Some(main),
+
       // The three following commands are needed for my embedded REPL to work while we are inside sbt
       fork := true,
       connectInput in run := true,
@@ -56,7 +57,7 @@ object ScalaFlyBuild extends Build {
     proguardExclude in Android <<= (proguardExclude in Android, fullClasspath in Runtime) map { (inherited, cp_) =>
       val cp: PathFinder = cp_.files
       val excluded =
-	(cp ** "logback-core*.jar") +++
+	      (cp ** "logback-core*.jar") +++
         (cp ** "logback-classic*.jar") +++
         (cp ** "httpclient-*.jar") +++
         (cp ** "httpcore-*.jar") +++
@@ -79,7 +80,7 @@ object ScalaFlyBuild extends Build {
 
   lazy val androidAppSettings =
     Project.defaultSettings ++
-    assemblySettings ++
+    //assemblySettings ++
     Seq (
       // workaround for akka application.conf - see http://stackoverflow.com/questions/16200386/classpath-resource-gets-duplicated-by-probably-sbt
 	  unmanagedClasspath in Runtime <+= (baseDirectory) map { bd => Attributed.blank(bd / "config") }
@@ -88,13 +89,13 @@ object ScalaFlyBuild extends Build {
     TypedResources.settings ++
     proguardSettings ++
     AndroidManifestGenerator.settings ++
-    AndroidMarketPublish.settings 
+    AndroidMarketPublish.settings
 
   lazy val androidLibrarySettings =
     Project.defaultSettings ++
-    assemblySettings++
+    //assemblySettings++
     // AndroidBase.settings ++
-    AndroidProject.androidSettings  
+    AndroidProject.androidSettings
     // TypedResources.settings
 
   lazy val andropilot = Project (
